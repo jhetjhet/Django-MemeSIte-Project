@@ -1,0 +1,101 @@
+{% load static %}
+
+{% load form-filter %}
+
+<div class="post border border-warning shadow rounded p-2 my-2 bg-light" id="post-container-{{ post.id }}" pid="{{ post.id }}">
+	<div class="border-bottom border-warning cntnt-area">
+		<div class="d-flex align-items-center">
+			<a href="{% url 'user:profile' post.user.id %}">
+				<img class="rounded-circle m-2 border border-warning" src="{{ post.user.profile.picture.url }}" width="44" height="44">
+			</a>
+			<div class="">
+				<p class="text-warning m-0">{{ post.user.username }}</p>
+				<p class="m-0 text-primary sm-text">{{ post.date_posted|date:"D N t Y" }}</p>
+			</div>
+
+			{% if user.is_authenticated and post.user == user %}
+				<div class="post-option drop-down float-right ml-auto mb-auto">
+					<button role="button" id="post-option-{{ post.id }}" data-toggle="dropdown">
+						<svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-three-dots text-warning" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+						</svg>
+					</button>
+					<div class="dropdown-menu" aria-labelledby="post-option-{{ post.id }}">
+						<button class="dropdown-item delete-post" role="button">delete</button>
+					</div>
+				</div>
+			{% endif %}
+		</div>
+
+		{% if post.postcontent.text_content %}
+			<p class="border-bottom border-warning mb-0">{{ post.postcontent.text_content }}</p>
+		{% endif %}
+
+		<div>
+			{% for image in post.postcontent.image_set.all %}
+				<img class="w-100 my-1" src="{{ image.image.url }}">
+			{% endfor %}
+		</div>
+
+		<div class="d-flex align-items-center px-2">
+			<div class="d-flex align-items-center">
+				{% if user.is_authenticated %}
+					<div class="badge badge-pill border border-warning">
+						{% if user|doLike:post %}
+							<button class="mr-1 like">
+								<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-emoji-smile text-warning" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+									<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+									<path fill-rule="evenodd" d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683z"/>
+									<path d="M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/>
+								</svg>
+							</button>
+						{% else %}
+							<button class="mr-1 like">
+								<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-emoji-smile" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+									<path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+									<path fill-rule="evenodd" d="M4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683z"/>
+									<path d="M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zm4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5z"/>
+								</svg>
+							</button>
+						{% endif %}
+
+						{% if user|doDisLike:post %}
+							<button class="ml-1 dislike">
+								<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-emoji-smile-upside-down text-warning" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+									<path fill-rule="evenodd" d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0-1a8 8 0 1 1 0 16A8 8 0 0 1 8 0z"/>
+									<path fill-rule="evenodd" d="M4.285 6.433a.5.5 0 0 0 .683-.183A3.498 3.498 0 0 1 8 4.5c1.295 0 2.426.703 3.032 1.75a.5.5 0 0 0 .866-.5A4.498 4.498 0 0 0 8 3.5a4.5 4.5 0 0 0-3.898 2.25.5.5 0 0 0 .183.683z"/>
+									<path d="M7 9.5C7 8.672 6.552 8 6 8s-1 .672-1 1.5.448 1.5 1 1.5 1-.672 1-1.5zm4 0c0-.828-.448-1.5-1-1.5s-1 .672-1 1.5.448 1.5 1 1.5 1-.672 1-1.5z"/>
+								</svg>
+							</button>
+						{% else %}
+							<button class="ml-1 dislike">
+								<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-emoji-smile-upside-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+									<path fill-rule="evenodd" d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0-1a8 8 0 1 1 0 16A8 8 0 0 1 8 0z"/>
+									<path fill-rule="evenodd" d="M4.285 6.433a.5.5 0 0 0 .683-.183A3.498 3.498 0 0 1 8 4.5c1.295 0 2.426.703 3.032 1.75a.5.5 0 0 0 .866-.5A4.498 4.498 0 0 0 8 3.5a4.5 4.5 0 0 0-3.898 2.25.5.5 0 0 0 .183.683z"/>
+									<path d="M7 9.5C7 8.672 6.552 8 6 8s-1 .672-1 1.5.448 1.5 1 1.5 1-.672 1-1.5zm4 0c0-.828-.448-1.5-1-1.5s-1 .672-1 1.5.448 1.5 1 1.5 1-.672 1-1.5z"/>
+								</svg>
+							</button>
+						{% endif %}
+					</div>
+					<div class="badge badge-pill ml-2 border border-warning">
+						<button class="pst-cmnt-crt comment" id="pst-cmnt-crt-{{ post.id }}">
+							<span class="m-0">comment</span>
+						</button>
+					</div>
+				{% endif %}
+			</div>
+			<div class="ml-auto">
+				<span class="md-text text-warning" id="cmnt-count-{{ post.id }}">Comments-<span>{{ post.comment_set.all.count }}</span></span>
+				<div>
+					<span class="md-text text-warning" id="like-count-{{ post.id }}">Like-<span>{{ post.like_count }}</span></span>
+					<span class="md-text text-warning" id="dislike-count-{{ post.id }}">Dislike-<span>{{ post.dislike_count }}</span></span>
+				</div>
+			</div>
+		</div>			
+	</div>
+	<div class="cmnt-area">
+		<input type="text" name="last_id" value="start" hidden>
+		<div class="cmnt-cont">
+		</div>
+	</div>
+</div>

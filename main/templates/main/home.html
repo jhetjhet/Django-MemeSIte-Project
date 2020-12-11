@@ -1,0 +1,39 @@
+{% extends 'main/index.html' %}
+
+{% load static %}
+
+{% block content %}
+	<main class="container mt-2">
+		<div class="row justify-content-center">
+			<div class="col-lg-3">
+				<div class="d-flex flex-column">
+					
+					{% if user.is_authenticated %}
+						<div class="rounded-top my-2 d-flex p-2 align-items-center bg-light border border-warning">
+							<a href="{% url 'user:profile' user.id %}">
+								<img class="rounded-circle border border-warning mr-3" src="{{ user.profile.picture.url }}" width="64" height="64">
+							</a>
+							<div>
+								<p class="text-primary md-text m-0">{{ user.username }}</p>
+								<p class="md-text m-0">Post: {{ user.post_set.all.count }}</p>
+							</div>
+						</div>
+					{% else %}
+						<div class="rounded-top justify-content-center my-3 bg-light">
+							<button type="button" class="btn btn-outline-success btn-sm col" data-toggle="modal" data-target="#form-modal"><span class="text-warning">LOGIN/REGISTER</span></button>
+						</div>
+					{% endif %}
+
+					{% include 'main/top-users.html' %}
+				</div>
+
+			</div>
+			<div class="col-lg-6 mx-1">
+				<div class="my-2">
+					{% include 'main/post-form.html' with post_form=post_form %}
+				</div>
+				<div id="posts-container"></div>
+			</div>
+		</div>
+	</main>
+{% endblock content %}

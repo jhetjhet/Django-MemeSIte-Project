@@ -1,0 +1,17 @@
+<div class="media mx-3 my-2 bg-light rounded p-2 shadow-sm border border-warning" id="comment-{{ comment.id }}">
+	<a href="{% url 'user:profile' comment.user.id %}" class="rounded-circle mr-2">
+		<img class="rounded-circle" src="{{ comment.user.profile.picture.url }}" width="32" height="32" class="mr-2">
+	</a>
+	<div class="media-body">
+		<h5 class="m-0 sm-text">{{ comment.user.username }}</h5>
+		<p class="m-0 sm-text">{{ comment.date_commented|date:"D. M. d Y, g:i a" }}</p>
+		<div class="border-bottom p-1">
+			<p class="md-text m-0">{{ comment.text_comment }}</p>
+		</div>
+		{% if user == comment.user %}
+			<div class="float-right">
+				<a href="{% url 'main:post-comment-delete' comment.id %}" class="md-text ml-auto delete-cmnt">delete</a>
+			</div>
+		{% endif %}
+	</div>
+</div>

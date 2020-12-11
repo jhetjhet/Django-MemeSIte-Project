@@ -1,0 +1,360 @@
+{% load static %}
+
+<script>
+	function throwPostLoadedEvent(pid){
+		var postloaded = $.Event('postloaded');
+		postloaded.pid = pid;
+		$(window).trigger(postloaded);
+	};
+
+	function Post(){
+		this.onlike = (pid) => {};
+		this.ondislike = (pid) => {};
+		this.onCommentClick = (pid, last_id_input) => {};
+		this.onCommentSend = (cid) => {};
+		this.onCommentDelete = (href) => {};
+		this.onSeeMore = (pid, last_id_input) => {};
+		this.ondelete = (pid) => {};
+		this.onedit = (pid) => {};
+
+		this.getCommentArea = (pid) => {
+			return $(`#post-container-${pid} .cmnt-area`);
+		};
+
+		this.setLikeCount = (pid, count) => {
+			$(`#like-count-${pid} span`).text(count);
+		};
+
+		this.setDisLikeCount = (pid, count) => {
+			$(`#dislike-count-${pid} span`).text(count);
+		};
+
+		this.setCommentCount = (pid, count) => {
+			$(`#cmnt-count-${pid} span`).text(count);
+		}
+
+		this.setLikeState = (pid, isActive) => {
+			$(`#post-container-${pid} .like svg`).removeClass('text-warning');
+			if(isActive) $(`#post-container-${pid} .like svg`).addClass('text-warning');
+		};
+
+		this.setDisLikeState = (pid, isActive) => {
+			$(`#post-container-${pid} .dislike svg`).removeClass('text-warning');
+			if(isActive) $(`#post-container-${pid} .dislike svg`).addClass('text-warning');
+		};
+
+		this.disable = (pid) => {
+			$(`#post-container-${pid} .cntnt-area`).addClass('disabled-post');
+			$(`#post-container-${pid} .cmnt-area`).remove();
+			$(`#post-container-${pid}`).append(`
+					<div class="badge badge-warning badge-pill disabled-post-label d-flex align-items-center">
+						<svg width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-exclamation-triangle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+							<path fill-rule="evenodd" d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 5zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+						</svg>
+						<span class="ml-1">this post has been deleted</span>
+					</div>
+				`)
+		};
+
+		function hasClass(elem, clas){
+			return elem.classList.contains(clas);
+		}
+
+		$("#posts-container").on('click', '.post', (event) => {
+			var post = event.currentTarget;
+			var pid = post.getAttribute('pid');
+			var target = event.target;
+			var targetParent = target.parentNode;
+
+			if(hasClass(targetParent, 'like'))
+				this.onlike(pid);
+			else if(hasClass(targetParent, 'dislike'))
+				this.ondislike(pid);
+			else if(hasClass(targetParent, 'comment'))
+				this.onCommentClick(pid, $(`#post-container-${pid} .cmnt-area input[name='last_id']`));
+			else if(hasClass(target, 'see-more'))
+				this.onSeeMore(pid, $(`#post-container-${pid} .cmnt-area input[name='last_id']`));
+			else if(hasClass(target, 'snd-cmnt')){
+				this.onCommentSend(pid);
+				$(`#cmnt-form-${pid} textarea`).val('');
+				$(`#cmnt-form-${pid} .snd-cmnt`).addClass('disabled');
+			}else if(hasClass(target, 'delete-post'))
+				this.ondelete(pid);
+			else if(hasClass(target, 'edit-post'))
+				this.onedit(pid);
+			else if(hasClass(target, 'delete-cmnt'))
+				this.onCommentDelete(target.href);
+			else
+				return true;
+			event.preventDefault();
+		});
+
+		$(window).on('postloaded', (event) => {
+			
+		});
+	}
+
+	function PostManager(){
+		var lastPostPid = null;
+		var maxPage = null;
+
+		this.deletePost = (pid) => {
+			$.ajax({
+				'url': "{% url 'main:post-delete' %}",
+				'type': 'POST',
+				'data': {
+					'pid': pid,
+				},
+
+				error: (xhr, errmsg, errThrow) => {
+					console.error(errmsg);
+				},
+				headers: {'X_METHODOVERRIDE': 'DELETE'}
+			});
+		};
+
+		this.sendRate = (pid, name, post) => {
+			$.ajax({
+				'async': false,
+				'url': "{% url 'main:post-rate' %}",
+				'type': 'POST',
+				'data': {
+					'pid': pid,
+					'name': name
+				},
+
+				success: (json) => {
+					post.setLikeState(pid, false);
+					post.setDisLikeState(pid, false);
+					if(json.active)
+						json.active === 'like' ? post.setLikeState(pid, true) : post.setDisLikeState(pid, true);
+				},
+				error: (xhr, errmsg, errThrow) => {
+					console.error(errmsg);
+				}
+			});
+		};
+
+		this.sendComment = (pid) => {
+			var cmntForm = document.querySelector(`#cmnt-form-${pid}`);
+			cmntForm.querySelector('.alert-cont').innerHTML = '';
+			$.ajax({
+				'url': "{% url 'main:post-comment' %}",
+				'type': 'POST',
+				'data': new FormData(cmntForm),
+
+				contentType: false,
+				processData: false,
+
+				success: (json) => {
+					if(json.status === 1){
+						cmntForm.querySelector('.alert-cont').appendChild($(`<p class="sm-text">${json.date_commented}</p>`)[0]);
+					}else{
+						cmntForm.querySelector('.alert-cont').appendChild($(`<p class="sm-text">${json.message}</p>`)[0]);	
+					}
+				},
+
+				error: (xhr, errmsg, errThrow) => {
+					console.error(errmsg);
+				}
+			});
+		};
+
+		this.reqComment = (pid, last_id_input) => {
+			var last_id = last_id_input.val();
+			var include_form = last_id === 'start';
+			$.ajax({
+				'url': "{% url 'main:post-comment-request' %}",
+				'type': 'GET',
+				'data': {
+					'pid': pid,
+					'last_id': last_id,
+					'include_form': include_form,
+				},
+
+				success: (json) => {
+					$(`#post-container-${pid} .cmnt-cont .see-more`).remove();
+					if(include_form)
+						$(`#post-container-${pid} .cmnt-area`).prepend(json.comment_form);
+					$(`#post-container-${pid} .cmnt-cont`).append(json.comments_html);
+					if(json.last_id !== 'end')
+						$(`#post-container-${pid} .cmnt-cont`).append($('<a href="#" class="see-more">see more...</a>')[0]);
+					last_id_input.val(json.last_id);
+				},
+
+				error: (xhr, errmsg, errThrow) => {
+					console.error(errmsg);
+				}
+			});
+		};
+
+		this.delComment = (href) => {
+			$.ajax({
+				'url': href,
+				'type': 'POST',
+				success: (json) => {
+					console.log('deletion success');
+				},
+				error: (xhr, errmsg, errThrow) => {
+					console.error(errmsg);
+				}
+			});
+		};
+
+		this.reqPost = (filter_user) => {
+			if(lastPostPid != 'end'){
+				$.ajax({
+					'async': false,
+					'url': "{% url 'main:post-request' %}",
+					'type': 'GET',
+					'data': {
+						'last_id': lastPostPid ? lastPostPid : 'start',
+						'filter_user': filter_user ? filter_user : ''
+					},
+					success: (json) => {
+						lastPostPid = json.last_id;
+						maxPage = json.max_lent;
+						for(var post of json.post_list_html)
+							$('#posts-container').append(post);
+						for(var pid of json.post_list_pids)
+							throwPostLoadedEvent(pid);
+					},
+					error: (xhr, errmsg, errThrow) => {
+						console.error(errmsg);
+					}
+				});
+			}
+		};
+	}
+
+	$(window).on('load', (event) => {
+		var postManager = new PostManager();
+
+		var pathname = window.location.pathname;
+		var userProfileUrlPatter = /(user)\/(\d+)\/(profile)/;
+		var match = pathname.match(userProfileUrlPatter);
+		var filter_user = match && match.length === 4 ? Number(match[2]) : null;
+
+		$(window).on('scroll', (event) => {
+			if ((window.innerHeight + window.scrollY) >= 0.9 * document.body.offsetHeight) {
+				postManager.reqPost(filter_user);
+		    }
+		});
+
+		{% if user.is_authenticated %}
+			var post = new Post();
+
+			post.onlike = (pid) => {
+				postManager.sendRate(pid, 'like', post);
+			};
+
+			post.ondislike = (pid) => {
+				postManager.sendRate(pid, 'dislike', post);
+			};
+
+			post.onCommentClick = (pid, last_id_input) => {
+				if(last_id_input.val() === 'start'){
+					postManager.reqComment(pid, last_id_input);
+					last_id_input.val('');
+				}
+				else{
+					var cmntCnt = post.getCommentArea(pid);
+					cmntCnt.toggleClass('hide');
+				}
+			};
+
+			post.onCommentSend = (pid) => {
+				postManager.sendComment(pid);
+			};
+
+			post.onCommentDelete = (href) => {
+				postManager.delComment(href);
+			};
+
+			post.onSeeMore = (pid, last_id_input) => {
+				if(last_id_input.val() != 'end')
+					postManager.reqComment(pid, last_id_input);
+			};
+
+			post.ondelete = (pid) => {
+				var conf = new ConfModal('Delete this post ?');
+				conf.onok = () => {
+					postManager.deletePost(pid);
+				};
+			};
+
+			function PostUpdatesEvent(){
+				var postUpdateSocket = new WebSocket(`ws://${window.location.host}/ws/postupdate/`);
+				this.onPostDeletion = (pid) => {};
+				this.onRateUpdate = (pid, name, like_count, dislike_count) => {};
+				this.onNewComment = (pid, comment_html, new_comment_count) => {};
+				this.onCommentDeletion = (pid, cid) => {};
+				this.ready = (e) => {};
+				this.listenTo = (pid) => {
+					postUpdateSocket.send(JSON.stringify({
+						'type': 'post_notif_request',
+						'pid': pid
+					}));
+				}
+
+				postUpdateSocket.onopen = (e) => {
+					this.ready(e);
+				};
+
+				postUpdateSocket.onmessage = (event) => {
+					var data = JSON.parse(event.data);
+					switch(data.type){
+						case 'post_deletion_broadcast':
+							this.onPostDeletion(data.pid);
+							break;
+						case 'post_rate_update_broadcast':
+							this.onRateUpdate(data.pid, data.name, data.like_count, data.dislike_count);
+							break;
+						case 'post_comment_update_broadcast':
+							this.onNewComment(data.pid, data.comment_html, data.new_count);
+							break;
+						case 'post_comment_delete_broadcast':
+							this.onCommentDeletion(data.pid, data.cid, data.new_count);
+							break;
+					}
+				};
+			}
+			var postUpdates = new PostUpdatesEvent();
+
+			postUpdates.ready = (e) => {
+				$(window).on('postloaded', (event) => {
+					postUpdates.listenTo(event.pid);
+				});
+
+				postUpdates.onPostDeletion = (pid) => {
+					post.disable(pid);
+				};
+
+				postUpdates.onRateUpdate = (pid, name, like_count, dislike_count) => {
+					post.setLikeCount(pid, like_count);
+					post.setDisLikeCount(pid, dislike_count);
+				};
+
+				postUpdates.onNewComment = (pid, comment_html, new_comment_count) => {
+					if($(`#post-container-${pid} .cmnt-area form`).length != 0)
+						$(`#post-container-${pid} .cmnt-cont`).prepend(comment_html);
+					post.setCommentCount(pid, new_comment_count);
+				};
+
+				postUpdates.onCommentDeletion = (pid, cid, new_comment_count) => {
+					$(`#comment-${cid}`).remove();
+					post.setCommentCount(pid, new_comment_count);
+				};
+
+				postManager.reqPost(filter_user);
+			};
+		{% else %}
+			postManager.reqPost(filter_user);
+			$(window).on('scroll', (event) => {
+				if ((window.innerHeight + window.scrollY) >= 0.9 * document.body.offsetHeight) {
+					postManager.reqPost(filter_user);
+			    }
+			});
+		{% endif %}
+	});
+</script>

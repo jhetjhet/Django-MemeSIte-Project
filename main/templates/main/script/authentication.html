@@ -1,0 +1,78 @@
+<script>
+	$('#login-form-submit').on('click', (event) => {
+		const loginForm = $('#login-form');
+		const actionUrl = loginForm.attr('action');
+
+		$('#login-form-error-message').remove();
+
+		$.ajax({
+			url: actionUrl,
+			type: 'POST',
+			data: new FormData(loginForm[0]),
+
+			contentType: false,
+			processData: false,
+
+			success: (json) => {
+				if(json.status === 1){
+					window.location = json.redirect;
+				}else{
+					$('#login-form').prepend(
+							`<div class="alert alert-danger" id="login-form-error-message">${json.message}</div>`
+						);
+				}
+			},
+
+			error: (xhr, errmsg, err) => {
+				console.error(errmsg);
+			}
+		});
+
+		event.preventDefault();
+	});
+
+	$('#crte-acc-form-submit').on('click', (event) => {
+		var rgsterForm = $('#create-account-form');
+		var actionUrl = "{% url 'user:create' %}";
+
+		$('#rgster-valid-label').remove();
+		$('#username-error').text('');
+		$('#email-error').text('');
+		$('#password1-error').text('');
+		$('#password2-error').text('');
+
+		$.ajax({
+			url: actionUrl,
+			type: 'POST',
+			data: new FormData(rgsterForm[0]),
+
+			contentType: false,
+			processData: false,
+
+			success: (json) => {
+				if(json.status === 1){
+					$('#create-account-form').prepend(
+							`<div class="alert alert-success" id="rgster-valid-label">${json.message}</div>`
+						);
+					rgsterForm.trigger('reset');
+				}
+				else{
+					if(json.username)
+						$('#username-error').text('*'+json.username[0].message);
+					if(json.email)
+						$('#email-error').text('*'+json.email[0].message);
+					if(json.password1)
+						$('#password1-error').text('*'+json.password1[0].message);
+					if(json.password2)
+						$('#password2-error').text('*'+json.password2[0].message);
+				}
+			},
+
+			error: (xhr, errmsg, err) => {
+				console.error(errmsg);
+			}
+		});
+
+		event.preventDefault();
+	});
+</script>

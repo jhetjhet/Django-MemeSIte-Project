@@ -1,0 +1,18 @@
+
+<form id="cmnt-form-{{ pid }}" class="px-2">
+	{% csrf_token %}
+	<input type="text" name="pid" value="{{ pid }}" hidden="">
+	<div class="d-flex py-1">
+		<textarea class="form-control md-text" rows="2" style="max-height: 12em;" placeholder="Write comment here..." name="content" required></textarea>
+		<a class="btn disabled btn-warning ml-1 snd-cmnt" role="button">send</a>
+	</div>
+	<div class="alert-cont ml-1"></div>
+</form>
+
+<script>
+	$('#cmnt-form-{{ pid }} textarea').on('keyup change', (event) => {
+		var txtL = event.currentTarget.value.length;
+		if(txtL > 0) $('#cmnt-form-{{ pid }} .snd-cmnt').removeClass('disabled');
+		else $('#cmnt-form-{{ pid }} .snd-cmnt').addClass('disabled');
+	});
+</script>

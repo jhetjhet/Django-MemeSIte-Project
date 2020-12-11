@@ -1,0 +1,50 @@
+<div class="rounded-bottom border border-warning bg-light p-2">
+	<h5 class="text-warning">Top users</h3>
+	<div class="d-flex flex-column align-items-start" id="top-users-container">
+		{% if not user.is_authenticated %}
+			<p class="text-warning border-bottom border-warning pb-1 w-100">log in to view</p>
+		{% endif %}
+	</div>
+</div>
+
+{% if user.is_authenticated %}
+	<script defer>
+		window.addEventListener('load', (event) => {
+			function updateTopUsers(){
+				$.ajax({
+					'url': "{% url 'user:tops' %}",
+					'type': 'GET',
+					success: (json) => {
+						var userItems = "";
+						for(let user of json.top_users){
+							userItems += `
+								<div class="d-flex align-items-center w-100 pb-1 mt-2 border-bottom border-warning">
+									<a href="${user.link}">
+										<img class="rounded-circle border border-warning mr-2" src="${user.profile_picture_url}" width="42" height="42">
+									</a>
+									<div>
+										<a href="${user.link}" class="md-text m-0 text-primary">${user.username}</a>
+										<p class="md-text m-0">followers:&nbsp;${user.followers_count}</p>
+									</div>
+								</div>
+							`;
+						}
+						$('#top-users-container').html($(userItems));
+					},
+					error: (xhr, errmsg, errThrow) => {
+						console.error(errmsg);
+					},
+
+					complete: (xhr, status) => {
+						if(status === 'success')
+							setTimeout(() => {updateTopUsers();}, 60000);
+					},
+
+					'timeout': 2000
+				});
+			};
+
+			updateTopUsers();
+		});
+	</script>
+{% endif %}

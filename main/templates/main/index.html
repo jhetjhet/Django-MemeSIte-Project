@@ -1,0 +1,168 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-4.0.0/bootstrap.min.css' %}">
+
+		<!-- CUSTOM CSS -->
+		<link rel="stylesheet" type="text/css" href="{% static 'main/css/style.css' %}">
+
+		<title>Memeniac</title>
+	</head>
+	<body>
+		<header>
+			<nav class="navbar border-bottom border-warning fixed-top navbar-expand navbar-light bg-light">
+				<div class="container">
+					<a class="navbar-brand text-warning" href="{% url 'main:home' %}">
+						<img class="logo bg-warning rounded-circle" src="{% static 'web-images/troll-face-logo.svg' %}" width="32" height="32">
+						<span id="logo-label">memeniac</span>
+					</a>
+					<button class="navbar-toggler bg-warning" type="button" data-toggle="collapse" data-target="#navbar-navs" aria-controls="navbar-navs" aria-expanded="false" aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
+					<div class="collapse navbar-collapse" id="navbar-navs">
+						<form class="form-inline my-2">
+							<div class="dropdown">
+								<div class="input-group input-group-sm md-form form-sm form-2 pl-0">
+									<input id="user-search-box" class="form-control my-0 py-1 warning-border" type="text" placeholder="Search" aria-label="Search" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<div class="input-group-append">
+										<span class="input-group-text red lighten-3" id="basic-text1">
+											<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-search" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+												<path fill-rule="evenodd" d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"/>
+												<path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+											</svg>
+										</span>
+									</div>
+									<div id="search-results" class="dropdown-menu w-100" aria-labelledby="user-search-box"></div>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="collapse navbar-collapse">
+						{% if user.is_authenticated %}
+							<div class="ml-auto navbar-nav">
+								<div class="dropdown">
+									<button data-toggle="dropdown" type="button" id="profile-option" aria-haspopup="true" aria-expanded="false">
+										<img class="rounded-circle border border-warning" src="{{ user.profile.picture.url }}" width="42" height="42">
+										<span id="nav_user_username" class="text-warning">{{ user.username }}</span>
+									</button>
+									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="profile-option">
+										<a href="{% url 'user:profile' user.id %}" class="dropdown-item" type="button">profile</a>
+										<a href="{% url 'user:logout' %}" class="dropdown-item" type="button">logout</a>
+										<a href="{% url 'user:change_pass' %}" class="dropdown-item" type="button">change password</a>
+									</div>
+								</div>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</nav>
+		</header>
+
+		{% block content %}
+		{% endblock content %}
+
+		<div id="post-modal" class="post-modal">
+			<span class="close">&times;</span>
+		</div>
+
+		{% if not user.is_authenticated %}
+			{% include 'user/login-register-modal.html' %}
+		{% endif %}
+
+		<script src="{% static 'main/js/jquery-3.5.1.min.js' %}" type="text/javascript"></script>
+		<script type="text/javascript" src="{% static 'bootstrap-4.0.0/popper.min.js' %}"></script>
+		<script type="text/javascript" src="{% static 'bootstrap-4.0.0/bootstrap.min.js' %}"></script>
+		<script>
+			var sendSearchedID = null;
+
+			$('#user-search-box').on('change keyup focus', (event) => {
+				var searchedName = $('#user-search-box').val().trim();
+				if(!$('#search-results').hasClass('show'))
+					$('#user-search-box').dropdown('toggle');
+				clearTimeout(sendSearchedID);
+				if(searchedName.length > 0){
+					sendSearchedID = setTimeout(() => {
+						$.ajax({
+							'url': "{% url 'user:search' %}",
+							'type': 'GET',
+							'data': {
+								'username': searchedName
+							},
+							success: (json) => {
+								var results = "";
+								for(let user of json.results){
+									results += `
+										<a href="${user.link}" class="dropdown-item search-result-item" type="button"><img class="rounded-circle mr-2" src="${user.profile_picture_url}" width="32" height="32">${user.username}</a>
+									`;
+								}
+								results += `
+									<p class="dropdown-header sm-text border-top border-warning p-0 mt-2 pl-2">results: ${json.results_count}</p>
+								`
+								$('#search-results').html(results);
+							},
+							error: (xhr, errmsg, errThrow) => {
+								console.error(errmsg);
+							}
+						});
+					}, 700);
+				}else{
+					$('#search-results').html('');
+				}
+			});
+		</script>
+
+		{% if user.is_authenticated %}
+			<script>
+				function getCookie(name) {
+				    var cookieValue = null;
+				    if (document.cookie && document.cookie !== '') {
+				        var cookies = document.cookie.split(';');
+				        for (var i = 0; i < cookies.length; i++) {
+				            var cookie = cookies[i].trim();
+				            // Does this cookie string begin with the name we want?
+				            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+				                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				                break;
+				            }
+				        }
+				    }
+				    return cookieValue;
+				}
+
+				var csrftoken = getCookie('csrftoken');
+
+				function csrfSafeMethod(method) {
+				    // these HTTP methods do not require CSRF protection
+				    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+				}
+				$.ajaxSetup({
+				    beforeSend: function(xhr, settings) {
+				        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+				            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+				        }
+				    }
+				});
+
+				function CurrentUser(){
+					return {
+						'id': Number('{{ user.id }}'),
+						'username': '{{ user.username }}',
+					};
+				}
+			</script>
+			{% include 'main/script/user-script.html' %}
+		{% else %}
+			{% include 'main/script/authentication.html' %}
+		{% endif %}
+
+		{% include 'main/script/post-script.html' %}
+
+		<script src="{% static 'main/js/script.js' %}" type="text/javascript"></script>
+	</body>
+</html>
