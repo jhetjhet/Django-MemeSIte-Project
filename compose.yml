@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  
+  redis:
+    image: redis:5.0
+    expose:
+      - 6379
+  
+  django_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: django_app_container
+    env_file:
+      - .env
+    environment:
+      - ENV_MODE=production
+      - WEBSOCKET_URL=ws://localhost
+    volumes:
+      - django_static_files:/app/staticfiles
+      - django_media_files:/app/webfiles/media
+      - django_db:/app/db
+    expose:
+      - 8000
+
+  django_websocket:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: django_websocket_container
+    env_file:
+      - .env
+    volumes:
+      - django_db:/app/db
+    depends_on:
+      - django_app #
+    environment:
+      - ENV_MODE=daphne
+      - COLLECTSTATIC=False
+      - MAKE_MIGRATION=False
+      - MIGRATE=False
+    expose:
+      - 8001
+
+  web_server:
+    image: nginx
+    depends_on:
+      - django_app
+      - django_websocket
+    container_name: nginx_container
+    volumes:
+      - django_static_files:/usr/share/nginx/html/static
+      - django_media_files:/usr/share/nginx/html/media
+      - ./nginx-server/config.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+
+volumes:
+  django_static_files:
+  django_media_files:
+  django_db:

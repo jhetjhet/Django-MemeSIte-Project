@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  
+  redis:
+    image: redis:5.0
+    expose:
+      - 6379
+  django_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: django_app_container
+    env_file:
+      - .env
+    environment:
+      - DEBUG=True
+      - ENV_MODE=development
+      - WEBSOCKET_URL=ws://localhost:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"

@@ -1,0 +1,6 @@
+.git
+.gitignore
+staticfiles/
+webfiles/
+!webfiles/media/Profile/pictures/default_profile_picture.jpg
+db/sqlite3.db

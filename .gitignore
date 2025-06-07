@@ -9,6 +9,11 @@ __pycache__/
 db.sqlite3
 *.sqlite3
 /media/
+webfiles/media/PostContent/*
+# Ignore all files in the folder
+webfiles/media/Profile/pictures/*
+# But do not ignore a specific file (e.g., keepfile.jpg)
+!webfiles/media/Profile/pictures/default_profile_picture.jpg
 staticfiles/
 
 # Environment

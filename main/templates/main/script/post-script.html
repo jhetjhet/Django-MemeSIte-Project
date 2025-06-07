@@ -284,7 +284,9 @@
 			};
 
 			function PostUpdatesEvent(){
-				var postUpdateSocket = new WebSocket(`ws://${window.location.host}/ws/postupdate/`);
+				let webSocketUrl = '{{ WEBSOCKET_URL }}/ws/postupdates/';
+				console.log('WebSocket URL:', webSocketUrl);
+				var postUpdateSocket = new WebSocket(webSocketUrl);
 				this.onPostDeletion = (pid) => {};
 				this.onRateUpdate = (pid, name, like_count, dislike_count) => {};
 				this.onNewComment = (pid, comment_html, new_comment_count) => {};
@@ -298,6 +300,7 @@
 				}
 
 				postUpdateSocket.onopen = (e) => {
+					console.log('Post update socket opened', webSocketUrl);
 					this.ready(e);
 				};
 
