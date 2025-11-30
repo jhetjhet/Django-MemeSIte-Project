@@ -4,12 +4,14 @@ FROM python:3.9-slim
 RUN apt-get update && apt-get install -y \
     sqlite3 gcc libpq-dev python3-dev \
     zlib1g-dev libjpeg-dev libpng-dev \
+    pkg-config default-libmysqlclient-dev build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . /app
 COPY start.sh .
 
+RUN pip install --no-cache-dir -r requirements.txt
 RUN chmod +x start.sh
 
 CMD ["sh", "./start.sh"]

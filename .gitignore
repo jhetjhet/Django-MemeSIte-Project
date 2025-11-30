@@ -3,27 +3,21 @@
 *.pyo
 *.pyd
 __pycache__/
-*.env
 
 # Django
 db.sqlite3
 *.sqlite3
 /media/
 webfiles/media/PostContent/*
-# Ignore all files in the folder
 webfiles/media/Profile/pictures/*
-# But do not ignore a specific file (e.g., keepfile.jpg)
+# default profile picture should not be ignored
 !webfiles/media/Profile/pictures/default_profile_picture.jpg
 staticfiles/
 
 # Environment
 .env
 *.env
-
-# IDEs and editors
-.vscode/
-.idea/
-*.swp
+!.sample.env
 
 # Git
 .git/

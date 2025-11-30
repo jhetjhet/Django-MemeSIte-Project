@@ -3,19 +3,16 @@ services:
   
   redis:
     image: redis:5.0
+    container_name: redis_dev
     expose:
       - 6379
   django_app:
     build:
       context: .
       dockerfile: Dockerfile.app
-    container_name: django_app_container
+    container_name: django_app_container_dev
     env_file:
-      - .env
-    environment:
-      - DEBUG=True
-      - ENV_MODE=development
-      - WEBSOCKET_URL=ws://localhost:8000
+      - .dev.env
     volumes:
       - .:/app
     ports:

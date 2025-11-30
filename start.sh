@@ -3,9 +3,6 @@ set -e  # Exit immediately on error
 
 echo "ENV MODE: $ENV_MODE"
 
-# Install Python dependencies
-pip install -r requirements.txt
-
 # Run Django setup based on environment variables
 if [ "$MAKE_MIGRATION" = "True" ]; then
     python manage.py makemigrations user main

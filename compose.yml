@@ -30,15 +30,15 @@ services:
     container_name: django_websocket_container
     env_file:
       - .env
+    environment:
+      - ENV_MODE=daphne
+      - MAKE_MIGRATION=False
+      - MIGRATE=False
+      - COLLECTSTATIC=False
     volumes:
       - django_db:/app/db
     depends_on:
-      - django_app #
-    environment:
-      - ENV_MODE=daphne
-      - COLLECTSTATIC=False
-      - MAKE_MIGRATION=False
-      - MIGRATE=False
+      - django_app # migrations and main database is from this app
     expose:
       - 8001
 
