@@ -5,8 +5,11 @@ echo "ENV MODE: $ENV_MODE"
 
 echo "Waiting for MySQL..."
 
-until mysqladmin ping -h "mysql" --silent; do
-  sleep 2
+for i in {1..30}; do
+    if mysqladmin ping -h "mysql" --silent; then
+        break
+    fi
+    sleep 2
 done
 
 echo "MySQL is ready."
