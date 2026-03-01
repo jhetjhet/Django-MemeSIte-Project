@@ -1,5 +1,25 @@
 version: '3.8'
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassowrd
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   redis:
     image: redis:5.0
@@ -10,7 +30,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
-    container_name: django_app_container
     env_file:
       - .env
     environment:
@@ -21,12 +40,13 @@ services:
       - ./webfiles/media:/app/webfiles/media
     expose:
       - 8000
+    depends_on:
+      - mysql
 
   django_websocket:
     build:
       context: .
       dockerfile: Dockerfile.app
-    container_name: django_websocket_container
     env_file:
       - .env
     environment:
@@ -44,7 +64,6 @@ services:
     depends_on:
       - django_app
       - django_websocket
-    container_name: nginx_container
     volumes:
       - django_static_files:/usr/share/nginx/html/static
       - ./webfiles/media:/usr/share/nginx/html/media
@@ -54,3 +73,4 @@ services:
 
 volumes:
   django_static_files:
+  mysql_data:

@@ -3,6 +3,14 @@ set -e  # Exit immediately on error
 
 echo "ENV MODE: $ENV_MODE"
 
+echo "Waiting for MySQL..."
+
+until mysqladmin ping -h "mysql" --silent; do
+  sleep 2
+done
+
+echo "MySQL is ready."
+
 # Run Django setup based on environment variables
 if [ "$MAKE_MIGRATION" = "True" ]; then
     python manage.py makemigrations user main
