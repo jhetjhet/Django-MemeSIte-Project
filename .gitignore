@@ -21,3 +21,6 @@ staticfiles/
 
 # Git
 .git/
+
+# VSCode
+.vscode/
