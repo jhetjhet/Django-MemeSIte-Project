@@ -17,4 +17,3 @@ RUN chmod +x start.sh
 ENTRYPOINT ["./start.sh"]
 
 EXPOSE 8000
-EXPOSE 8001

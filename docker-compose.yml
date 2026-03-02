@@ -32,12 +32,11 @@ services:
       - mysql
       - redis
     volumes:
-      - django_static_files:/app/staticfiles
+      - ./staticfiles:/app/staticfiles
       - ./webfiles/media:/app/webfiles/media
     command: python manage.py runserver 0.0.0.0:8000
-    expose:
-      - 8000
+    ports:
+      - "8000:8000"
 
 volumes:
-  django_static_files:
   mysql_data:
