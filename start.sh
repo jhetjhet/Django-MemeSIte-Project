@@ -27,13 +27,4 @@ if [ "$COLLECTSTATIC" = "True" ]; then
     python manage.py collectstatic --noinput
 fi
 
-if [ "$ENV_MODE" = "production" ]; then
-    echo "Running in production mode"
-    gunicorn Memeniac.wsgi:application --bind 0.0.0.0:8000
-elif [ "$ENV_MODE" = "daphne" ]; then
-    echo "Running in daphne mode"
-    daphne -b 0.0.0.0 -p 8080 Memeniac.asgi:application
-else
-    echo "Running in development mode"
-    python manage.py runserver 0.0.0.0:8000
-fi
+exec "$@" # Execute the command passed as arguments to the container

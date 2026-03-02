@@ -1,8 +1,19 @@
 # Django & runtime artifacts
-webfiles/*
+webfiles/
+!webfiles/media/Profile/pictures/default_profile_picture.jpg
 staticfiles/
-.vscode/*
+.vscode/
 
 # Git
-.git
+.git/
 .gitignore
+
+# Environment
+.env
+*.env
+
+# docker
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+docker-compose.prod.yml

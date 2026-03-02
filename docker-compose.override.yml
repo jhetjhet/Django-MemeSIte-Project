@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  django_app:
+    env_file: .env
+    environment:
+      - ENV_MODE=development
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    

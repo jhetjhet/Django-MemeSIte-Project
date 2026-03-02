@@ -14,7 +14,7 @@ COPY start.sh .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN chmod +x start.sh
 
-CMD ["sh", "./start.sh"]
+ENTRYPOINT ["./start.sh"]
 
 EXPOSE 8000
 EXPOSE 8001
