@@ -4,19 +4,4 @@ services:
   django_app:
     image: snits/django-memesite:1.0
     build: !reset null
-    # command: gunicorn Memeniac.wsgi:application --bind 0.0.0.0:8000
     command: daphne -b 0.0.0.0 -p 8000 Memeniac.asgi:application
-
-  # django_websocket:
-  #   image: snits/django-memesite:1.0
-  #   build: !reset null
-  #   env_file: .env
-  #   environment:
-  #     - MAKE_MIGRATION=false
-  #     - MIGRATE=false
-  #     - COLLECT_STATIC=false
-  #   depends_on:
-  #     - django_app
-  #   command: daphne -b 0.0.0.0 -p 8080 Memeniac.asgi:application
-  #   expose:
-  #     - 8001
