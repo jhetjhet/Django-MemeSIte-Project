@@ -1,5 +1,7 @@
 {% load static %}
 
+{% load markdownify %}
+
 {% load form-filter %}
 
 <div class="post border border-warning shadow rounded p-2 my-2 bg-light" id="post-container-{{ post.id }}" pid="{{ post.id }}">
@@ -28,7 +30,7 @@
 		</div>
 
 		{% if post.postcontent.text_content %}
-			<p class="border-bottom border-warning mb-0">{{ post.postcontent.text_content }}</p>
+			<div class="border-bottom border-warning mb-0">{{ post.postcontent.text_content|markdownify }}</div>
 		{% endif %}
 
 		<div>
