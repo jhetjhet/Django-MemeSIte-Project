@@ -4,4 +4,6 @@ services:
   django_app:
     image: snits/django-memesite:1.0
     build: !reset null
+    environment:
+      - ENV_MODE=production
     command: daphne -b 0.0.0.0 -p 8000 Memeniac.asgi:application
