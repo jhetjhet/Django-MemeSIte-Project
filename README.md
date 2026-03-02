@@ -22,7 +22,7 @@ This project demonstrates a complete Django web application with real-time featu
 | **Database & ORM** | Django ORM with migrations |
 | **Frontend** | Django Templates + Bootstrap |
 | **Real-time Updates** | Django Channels (WebSocket) + Redis |
-| **Production Server** | Gunicorn + Nginx |
+| **Production Server** | Daphne + Nginx |
 | **Containerization** | Docker & Docker Compose |
 
 ## ✨ Key Features
@@ -40,14 +40,14 @@ This project demonstrates a complete Django web application with real-time featu
 
 ## 📋 Requirements
 
-- **Docker** and **Docker Compose** (for containerized deployment)
-- Alternatively: Python 3.9+, PostgreSQL/MySQL, Redis (for local development)
+- **Docker** and **Docker Compose** (recommended for consistent deployment)
+- Alternatively: Python 3.9+ on Ubuntu Linux
 
 ## 🚀 Quick Start
 
 ### Development Mode
 ```bash
-docker compose -f docker-compose-dev.yml up
+docker compose up
 ```
 Runs the development server with hot-reload enabled.
 
@@ -55,9 +55,9 @@ Access the application at `http://localhost:8000`
 
 ### Production Mode
 ```bash
-docker compose up
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 ```
-Runs the production environment with Gunicorn and Nginx.
+Runs the production environment with Daphne and Nginx.
 
 Access the application at `http://localhost`
 
