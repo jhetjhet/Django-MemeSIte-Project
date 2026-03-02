@@ -284,7 +284,8 @@
 			};
 
 			function PostUpdatesEvent(){
-				let webSocketUrl = 'ws://{{ request.get_host }}/ws/postupdates/';
+				const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+				let webSocketUrl = protocol + '{{ request.get_host }}/ws/postupdates/';
 				console.log('WebSocket URL:', webSocketUrl);
 				var postUpdateSocket = new WebSocket(webSocketUrl);
 				this.onPostDeletion = (pid) => {};
