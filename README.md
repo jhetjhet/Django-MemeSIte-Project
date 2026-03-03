@@ -6,6 +6,8 @@ A full-featured social media web application built with Django, where users can 
 
 This project demonstrates a complete Django web application with real-time features, production-ready deployment, and clean architecture. It's perfect for learning Django fundamentals, WebSocket integration, and Docker containerization.
 
+[Live Demo](https://memeniac.austin-full-stack-developer.tech/)
+
 ## 🖼️ Screenshots
 
 <img width="447" height="796" alt="Screenshot 2025-12-01 002922" src="https://github.com/user-attachments/assets/77f1437b-5c2a-472e-821d-1d386b5787d0" />
