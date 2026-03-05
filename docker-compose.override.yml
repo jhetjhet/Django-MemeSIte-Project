@@ -3,8 +3,9 @@ services:
     env_file: .env
     environment:
       - ENV_MODE=development
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          initial_sync: true

@@ -15,5 +15,7 @@ staticfiles/
 # docker
 .dockerignore
 docker-compose.yml
-docker-compose.override.yml
-docker-compose.prod.yml
+docker-compose.*.yml
+
+__pycache__
+*.pyc
