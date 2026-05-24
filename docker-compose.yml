@@ -36,7 +36,7 @@ services:
       - ./webfiles/media:/app/webfiles/media
     command: python manage.py runserver 0.0.0.0:8000
     ports:
-      - "8000:8000"
+      - "${DJANGO_APP_PORT:-8000}:8000"
 
 volumes:
   mysql_data:
